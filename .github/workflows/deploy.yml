@@ -25,7 +25,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push image
         run: |
           docker build -t ghcr.io/${{ github.repository }}:${{ github.sha }} .
           docker push ghcr.io/${{ github.repository }}:${{ github.sha }}
@@ -41,6 +41,10 @@ jobs:
             -H "Content-Type: application/json" \
             -H "X-API-Key: ${{ secrets.LMS_API_KEY }}" \
             -d '{
-              "image":"ghcr.io/${{ github.repository }}:${{ github.sha }}",
-              "repository":"${{ github.repository }}"
+              "image": "ghcr.io/${{ github.repository }}:${{ github.sha }}",
+              "repository": "${{ github.repository }}",
+              "command": ["/bin/sh", "-c"],
+              "args": [
+                "export PATH=/usr/local/bin:/root/.local/bin:/usr/bin:/bin:$PATH && uv run python -m bin.api"
+              ]
             }'
