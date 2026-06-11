@@ -27,28 +27,53 @@
 
 # CMD ["uv", "run", "python", "-m", "bin.api"]
 
+
+# -------- STAGE 1: build dependencies --------
+FROM python:3.13-slim-bookworm AS builder
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# system deps (минимально нужные)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+WORKDIR /app
+
+# копируем только зависимости (для кеша)
+COPY pyproject.toml uv.lock ./
+
+# создаём venv и ставим зависимости
+RUN /root/.local/bin/uv sync --frozen --no-dev
+
+
+# -------- STAGE 2: runtime --------
 FROM python:3.13-slim-bookworm
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app
 
+# только runtime зависимости ОС (минимум)
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl ca-certificates \
-    && rm -rf /var/lib/apt/lists/* \
-    && curl -LsSf https://astral.sh/uv/install.sh | sh
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# копируем зависимости
-COPY pyproject.toml uv.lock ./
+# копируем готовое окружение из builder
+COPY --from=builder /app /app
+COPY --from=builder /root/.local /root/.local
 
-# создаём venv и ставим зависимости
-RUN uv sync --frozen --no-dev
+# добавляем venv в PATH
+ENV PATH="/app/.venv/bin:/root/.local/bin:$PATH"
 
+# копируем код
 COPY . .
 
-# используем venv python напрямую
-CMD [".venv/bin/python", "-m", "bin.api"]
-
-
+# НЕ используем uv в runtime
+CMD ["python", "-m", "bin.api"]
