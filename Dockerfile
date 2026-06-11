@@ -75,7 +75,5 @@ ENV PATH="/app/.venv/bin:/root/.local/bin:$PATH"
 # копируем код
 COPY . .
 
-EXPOSE 8000
-
 # НЕ используем uv в runtime
 CMD ["python", "-m", "bin.api"]
