@@ -40,7 +40,11 @@ class SQLAlchemyAdRepository(AdRepository):
         self,
         ad_id: int,
     ) -> Ad | None:
-        raise NotImplementedError
+        result = await self._session.execute(select(AdModel).where(AdModel.id == ad_id))
+        model = result.scalar_one_or_none()
+        if model is None:
+            return None
+        return _to_entity(model)
 
     async def list(
         self,
@@ -71,6 +75,18 @@ class SQLAlchemyAdRepository(AdRepository):
         self,
         ad: Ad,
     ) -> None:
+        model = await self._session.get(AdModel, ad.id)
+
+        if model is None:
+            return
+
+        model.title = ad.title
+        model.description = ad.description
+        model.price = ad.price
+        model.category = ad.category
+        model.city = ad.city
+        model.status = ad.status
+        model.updated_at = ad.updated_at
         raise NotImplementedError
 
 
