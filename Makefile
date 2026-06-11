@@ -20,7 +20,7 @@ migrate-create:
 run:
 	uv run python -m bin.api
 
-outbox:
+outbox-relay:
 	uv run python -m bin.outbox
 
 seed:

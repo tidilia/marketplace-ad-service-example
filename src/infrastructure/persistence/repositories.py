@@ -1,6 +1,6 @@
 from typing import List
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.ports.repositories import AdRepository
@@ -71,23 +71,20 @@ class SQLAlchemyAdRepository(AdRepository):
         total = count_result.scalar_one()
         return [_to_entity(m) for m in models], total
 
-    async def save(
-        self,
-        ad: Ad,
-    ) -> None:
-        model = await self._session.get(AdModel, ad.id)
-
-        if model is None:
-            return
-
-        model.title = ad.title
-        model.description = ad.description
-        model.price = ad.price
-        model.category = ad.category
-        model.city = ad.city
-        model.status = ad.status
-        model.updated_at = ad.updated_at
-        raise NotImplementedError
+    async def save(self, ad: Ad) -> None:
+        await self._session.execute(
+            update(AdModel)
+            .where(AdModel.id == ad.id)
+            .values(
+                title=ad.title,
+                description=ad.description,
+                price=ad.price,
+                category=ad.category,
+                city=ad.city,
+                status=ad.status.value,
+                updated_at=ad.updated_at,
+            )
+        )
 
 
 def _to_entity(model: AdModel) -> Ad:
