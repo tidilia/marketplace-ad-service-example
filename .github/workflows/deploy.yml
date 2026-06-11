@@ -1,9 +1,8 @@
-name: Deploy to LMS
+ame: Deploy to LMS
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build:
