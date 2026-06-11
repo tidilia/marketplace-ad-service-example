@@ -1,4 +1,4 @@
-ame: Deploy to LMS
+name: Deploy to LMS
 
 on:
   push:
