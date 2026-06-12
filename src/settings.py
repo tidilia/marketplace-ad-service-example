@@ -11,7 +11,10 @@ class Settings(BaseSettings):
     jwt_secret: str = "change-me"
     jwt_algorithm: str = "HS256"
     kafka_bootstrap_servers: str = "localhost:9092"
-    kafka_topic_ads: str = "ads"
+    kafka_topic_ads: str = Field(
+        default="ads",
+        validation_alias="KAFKA_TOPIC_MARKETPLACE_ADS",
+    )
     auth_service_url: str = "http://localhost:8000"
 
     database_url: str = Field(
