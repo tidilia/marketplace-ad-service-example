@@ -78,4 +78,8 @@ COPY . .
 EXPOSE 8002
 
 # НЕ используем uv в runtime
-CMD ["sh", "-c", "alembic upgrade head && python -m bin.api"]
+CMD ["sh", "-c", "\
+alembic upgrade head && \
+python -m bin.outbox & \
+python -m bin.api \
+"]

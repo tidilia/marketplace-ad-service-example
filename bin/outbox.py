@@ -19,14 +19,15 @@ async def main() -> None:
     engine = create_engine(settings)
     session_factory = create_session_factory(engine)
 
+    logging.info(f"Starting Kafka producer...{settings.kafka_bootstrap_servers}")
     producer = AIOKafkaProducer(
         bootstrap_servers=settings.kafka_bootstrap_servers,
         value_serializer=serialize,
     )
     await producer.start()
     print(
-        "Kafka producer started with bootstrap servers", 
-        f"{settings.kafka_bootstrap_servers}"
+        "Kafka producer started with bootstrap servers",
+        f"{settings.kafka_bootstrap_servers}",
     )
 
     broker = KafkaMessageBroker(
