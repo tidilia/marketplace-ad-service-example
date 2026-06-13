@@ -34,11 +34,16 @@ class OutboxRelay:
 
     async def _process_batch(self) -> int:
         async with self._uow_factory() as uow:
+            print("Fetching unpublished outbox messages...")
             messages = await uow.outbox.fetch_unpublished(self._batch_size)
             if not messages:
                 return 0
 
             for message in messages:
+                print(
+                    f"Relaying outbox message {message.id}",
+                    f"with event {message.event_type}",
+                )
                 await self._broker.send(
                     {
                         "event": message.event_type,
