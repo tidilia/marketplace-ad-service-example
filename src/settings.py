@@ -10,11 +10,15 @@ class Settings(BaseSettings):
     # database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5434/ads_db"
     jwt_secret: str = "change-me"
     jwt_algorithm: str = "HS256"
-    kafka_bootstrap_servers: str = "localhost:9092"
+    kafka_bootstrap_servers: str = Field(
+        default="localhost:9092",
+        validation_alias="KAFKA_BROKERS",
+    )
     kafka_topic_ads: str = Field(
         default="ads",
         validation_alias="KAFKA_TOPIC_MARKETPLACE_ADS",
     )
+    
     auth_service_url: str = "http://localhost:8000"
 
     database_url: str = Field(
