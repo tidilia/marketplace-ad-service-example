@@ -24,6 +24,7 @@ class OutboxRelay:
     async def run(self) -> None:
         while True:
             try:
+                logger.info("Starting outbox relay batch...")
                 published = await self._process_batch()
             except Exception:
                 logger.exception("outbox relay batch failed")
@@ -34,16 +35,13 @@ class OutboxRelay:
 
     async def _process_batch(self) -> int:
         async with self._uow_factory() as uow:
-            print("Fetching unpublished outbox messages...")
+            logger.info("Fetching unpublished outbox messages...")
             messages = await uow.outbox.fetch_unpublished(self._batch_size)
             if not messages:
                 return 0
 
             for message in messages:
-                print(
-                    f"Relaying outbox message {message.id}",
-                    f"with event {message.event_type}",
-                )
+                logger.info(f"Relaying outbox message {message.id}")
                 await self._broker.send(
                     {
                         "event": message.event_type,

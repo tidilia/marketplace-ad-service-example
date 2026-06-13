@@ -24,6 +24,10 @@ async def main() -> None:
         value_serializer=serialize,
     )
     await producer.start()
+    print(
+        "Kafka producer started with bootstrap servers", 
+        f"{settings.kafka_bootstrap_servers}"
+    )
 
     broker = KafkaMessageBroker(
         producer=producer,

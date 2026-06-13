@@ -18,7 +18,7 @@ class Settings(BaseSettings):
         default="ads",
         validation_alias="KAFKA_TOPIC_MARKETPLACE_ADS",
     )
-    
+
     auth_service_url: str = "http://localhost:8000"
 
     database_url: str = Field(
