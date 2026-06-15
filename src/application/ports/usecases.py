@@ -70,3 +70,8 @@ class ListAdsPort(ABC):
         limit: int,
         offset: int,
     ) -> tuple[list[AdView], int]: ...
+
+
+class IncrementViewsPort(ABC):
+    @abstractmethod
+    async def execute(self, ad_id: int) -> None: ...

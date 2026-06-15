@@ -70,9 +70,9 @@ class FakeOutboxRepository(OutboxRepository):
         self.messages: list[OutboxMessage] = []
         self._next_id = 1
 
-    async def add(self, event_type: str, payload: dict[str, Any]) -> None:
+    async def add(self, event_type: str, payload: dict[str, Any], trace_id: str = "") -> None:
         self.messages.append(
-            OutboxMessage(id=self._next_id, event_type=event_type, payload=payload)
+            OutboxMessage(id=self._next_id, event_type=event_type, payload=payload, trace_id=trace_id)
         )
         self._next_id += 1
 

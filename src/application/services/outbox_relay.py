@@ -4,6 +4,7 @@ from typing import Callable
 
 from src.application.ports.message_broker import MessageBroker
 from src.application.ports.uow import UnitOfWork
+from src.tracing import set_trace_id
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,6 @@ class OutboxRelay:
     async def run(self) -> None:
         while True:
             try:
-                logger.info("Starting outbox relay batch...")
                 published = await self._process_batch()
             except Exception:
                 logger.exception("outbox relay batch failed")
@@ -35,21 +35,22 @@ class OutboxRelay:
 
     async def _process_batch(self) -> int:
         async with self._uow_factory() as uow:
-            logger.info("Fetching unpublished outbox messages...")
             messages = await uow.outbox.fetch_unpublished(self._batch_size)
             if not messages:
                 return 0
 
             for message in messages:
-                logger.info(f"Relaying outbox message {message.id}")
+                set_trace_id(message.trace_id)
+                ad_id = message.payload.get("ad_id")
+                logger.info("relaying %s ad_id=%s", message.event_type, ad_id)
                 await self._broker.send(
                     {
                         "event": message.event_type,
                         "payload": message.payload,
+                        "trace_id": message.trace_id,
                     },
                 )
 
             await uow.outbox.mark_published([m.id for m in messages])
             await uow.commit()
-            logger.info("relayed %d outbox messages", len(messages))
             return len(messages)
