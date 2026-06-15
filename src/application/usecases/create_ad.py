@@ -1,6 +1,7 @@
 from src.application.ports.uow import UnitOfWork
 from src.application.ports.usecases import CreateAdPort
 from src.domain.entities import Ad
+from src.tracing import get_trace_id
 
 
 class CreateAd(CreateAdPort):
@@ -25,6 +26,8 @@ class CreateAd(CreateAdPort):
                 category=category,
                 city=city,
             )
-            await self._uow.outbox.add("ad.created", {"ad_id": ad.id})
+            await self._uow.outbox.add(
+                "ad.created", {"ad_id": ad.id}, trace_id=get_trace_id()
+            )
             await self._uow.commit()
         return ad

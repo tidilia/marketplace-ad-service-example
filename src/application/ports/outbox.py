@@ -8,6 +8,7 @@ class OutboxMessage:
     id: int
     event_type: str
     payload: dict[str, Any]
+    trace_id: str = ""
 
 
 class OutboxRepository(ABC):
@@ -16,6 +17,7 @@ class OutboxRepository(ABC):
         self,
         event_type: str,
         payload: dict[str, Any],
+        trace_id: str = "",
     ) -> None: ...
 
     @abstractmethod

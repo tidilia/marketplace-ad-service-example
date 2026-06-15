@@ -2,6 +2,7 @@ from src.application.exceptions import AdNotFoundError, ForbiddenError
 from src.application.ports.uow import UnitOfWork
 from src.application.ports.usecases import DeleteAdPort
 from src.domain.entities import AdStatus
+from src.tracing import get_trace_id
 
 
 class DeleteAd(DeleteAdPort):
@@ -25,6 +26,7 @@ class DeleteAd(DeleteAdPort):
             await self._uow.outbox.add(
                 "ad.deleted",
                 {"ad_id": ad.id},
+                trace_id=get_trace_id(),
             )
 
             await self._uow.commit()

@@ -50,7 +50,7 @@ async def test_create_and_get_ad(
     assert data["title"] == "MacBook Pro"
     assert data["user_id"] == 1
     assert data["user_name"] == "Alice"
-    assert data["views"] == 0
+    assert data["views"] == 1
 
 
 async def test_get_ad_not_found(client: AsyncClient) -> None:

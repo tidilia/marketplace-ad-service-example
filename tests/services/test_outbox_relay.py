@@ -24,8 +24,8 @@ async def test_relay_sends_and_marks_published(
 
     assert processed == 2
     assert fake_broker.sent == [
-        {"event": "ad.created", "payload": {"ad_id": 1}},
-        {"event": "ad.updated", "payload": {"ad_id": 1}},
+        {"event": "ad.created", "payload": {"ad_id": 1}, "trace_id": ""},
+        {"event": "ad.updated", "payload": {"ad_id": 1}, "trace_id": ""},
     ]
     assert fake_uow.committed
     assert fake_uow.outbox.messages == []

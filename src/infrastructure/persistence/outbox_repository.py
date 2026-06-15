@@ -11,8 +11,12 @@ class SQLAlchemyOutboxRepository(OutboxRepository):
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    async def add(self, event_type: str, payload: dict[str, Any]) -> None:
-        self._session.add(OutboxModel(event_type=event_type, payload=payload))
+    async def add(
+        self, event_type: str, payload: dict[str, Any], trace_id: str = ""
+    ) -> None:
+        self._session.add(
+            OutboxModel(event_type=event_type, payload=payload, trace_id=trace_id)
+        )
 
     async def fetch_unpublished(self, limit: int) -> list[OutboxMessage]:
         stmt = (
@@ -25,7 +29,9 @@ class SQLAlchemyOutboxRepository(OutboxRepository):
         result = await self._session.execute(stmt)
         models = result.scalars().all()
         return [
-            OutboxMessage(id=m.id, event_type=m.event_type, payload=m.payload)
+            OutboxMessage(
+                id=m.id, event_type=m.event_type, payload=m.payload, trace_id=m.trace_id
+            )
             for m in models
         ]
 
